@@ -1,0 +1,80 @@
+#!/bin/sh
+
+# MIT License
+# Copyright (c) 2021 Ayan Nath
+
+# bspdropterm - Drop down terminal functionality for bspwm
+
+### Configuration
+term="$TERMINAL"
+termPosition="1912x350+2+23"
+termClassname="drop-down-term"
+###
+
+termStatus="/tmp/dropdownterm_status"
+termIdFile="/tmp/dropdownterm_id"
+termId="$(/usr/bin/cat "$termIdFile")"
+
+spawn_term() {
+    "$term" --class "$termClassname","$termClassname" > /dev/null 2>&1
+}
+
+init_drop_down_term() {
+    bspc rule -a "$termClassname" state=floating rectangle="$termPosition" hidden=on sticky=on locked=on
+    spawn_term &
+    sleep 0.5
+    echo "$(printf 0x00%X "$(xdotool search --classname "$termClassname")")" > "$termIdFile" &
+    echo "0" > "$termStatus" &
+}
+
+term_toggle() {
+    currentStatus="$(/usr/bin/cat $termStatus)"
+    if [ "$currentStatus" = "1" ]; then
+        bspc node "$termId" -g hidden=on
+        echo "0" > "$termStatus"
+    else 
+        bspc node "$termId" -g hidden=off
+        echo "1" > "$termStatus"
+        # focus on the window 
+        bspc node "$termId" -f
+    fi
+}
+
+help_text() {
+    /usr/bin/cat << 'EOF'
+bspdropterm - Drop down terminal functionality for bspwm
+
+USAGE:
+    bspdropterm [OPTION]
+
+OPTIONS:
+    --init
+        Initialise drop down terminal.
+
+    --toggle
+        Toggle visibility of drop down terminal.
+
+CONFIG:
+    Open the script and modify the variables term, termPostition and termClassname as per your needs.    
+    You may need to edit the contents of the function spawn_term if you don't use Alacritty.
+
+        term               Name of the terminal you use ($TERMINAL by default)
+        termPosition       Position (as per bspwmrc convention) of the drop down terminal
+        termClassname      Classname of the drop down terminal
+
+Copyright (c) 2021 Ayan Nath
+EOF
+    exit 0
+}
+
+case "$1" in 
+    "--init")
+        init_drop_down_term
+        ;;
+    "--toggle")
+        term_toggle
+        ;;
+    *)
+        help_text
+        ;;
+esac
