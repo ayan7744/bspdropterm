@@ -23,7 +23,7 @@ init_drop_down_term() {
     bspc rule -a "$termClassname" state=floating rectangle="$termPosition" hidden=on sticky=on locked=on
     spawn_term &
     sleep 0.5
-    echo "$(printf 0x00%X "$(xdotool search --classname "$termClassname")")" > "$termIdFile" &
+    printf 0x00%X "$(xdotool search --classname "$termClassname")" > "$termIdFile" &
     echo "0" > "$termStatus" &
 }
 
