@@ -8,7 +8,7 @@ Put the script in your `$PATH`. Main functions:
 ```bash
 bspdropterm --init
 ```
-2. Toggle visibility of drop down terminal
+2. Toggle visibility of drop down terminal:
 ```bash
 bspdropterm --toggle
 ```
